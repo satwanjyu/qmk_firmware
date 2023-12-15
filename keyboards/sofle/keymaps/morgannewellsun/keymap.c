@@ -86,7 +86,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|  ENCL |    | ENCR  |------+------+------+------+------+------|
  * |LShift|   Z  |   X  |   M  |   C  |   V  |-------|    |-------|   K  |   L  |   ,  |   .  |   /  |RShift|
  * `-----------------------------------------/      /      \      \-----------------------------------------'
- *            | Down |  Up  | MINI |Space | / MEGA /        \ BASE \  | SYMB | FUNC | Left | Right|
+ *            | Down |  Up  | MINI | Space| / MEGA /        \ BASE \  | SYMB | FUNC | Left | Right|
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
  *            `----------------------------------'            '------''---------------------------'
  */
@@ -152,7 +152,7 @@ KC_LSFT,    KC_Z,       KC_X,       KC_C,       KC_V,       KC_B,       KC_TRNS,
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
  * |      |      |      |   [  |   ]  |      |-------|    |-------|      |      |      |      |      |      |
  * `-----------------------------------------/      /      \      \-----------------------------------------'
- *            |      |      | MINI |Space | / MEGA /        \      \  | SYMB |      |      |      |
+ *            |      |      | MINI | Space| / MEGA /        \      \  | SYMB |      |      |      |
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
  *            `----------------------------------'            '------''---------------------------'
  */
@@ -174,7 +174,7 @@ KC_NO,      KC_NO,      KC_NO,      KC_LBRC,    KC_RBRC,    KC_NO,      KC_TRNS,
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
  * |      |      |      |      |      |      |-------|    |-------|      |      |      |      |      | Boot |
  * `-----------------------------------------/      /      \      \-----------------------------------------'
- *            |      |      |  Alt |      | / Ctrl /        \      \  |      | FUNC |      |      |
+ *            |      |      |  Alt | Space| / Ctrl /        \      \  |      | FUNC |      |      |
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
  *            `----------------------------------'            '------''---------------------------'
  */
@@ -184,7 +184,7 @@ KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,              
 KC_F13,     KC_F14,     KC_F15,     KC_F16,     KC_F17,     KC_F18,                             KC_F19,     KC_F20,     KC_F21,     KC_F22,     KC_F23,     KC_F24,
 KC_F1,      KC_F2,      KC_F3,      KC_F4,      KC_F5,      KC_F6,                              KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_F11,     KC_F12,
 KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_TRNS,    KC_TRNS,    KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      QK_BOOT,
-                        KC_NO,      KC_NO,      KC_LALT,    KC_NO,      KC_LCTL,    KC_NO,      KC_NO,      KC_TRNS,    KC_NO,      KC_NO
+                        KC_NO,      KC_NO,      KC_LALT,    KC_SPC,     KC_LCTL,    KC_NO,      KC_NO,      KC_TRNS,    KC_NO,      KC_NO
 ),
 /*
  * MEGA
@@ -197,7 +197,7 @@ KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_TRNS,
  * |------+------+------+------+------+------|  ENCL |    | ENCR  |------+------+------+------+------+------|
  * |LShift|   Z  |   X  |   M  |   C  |   V  |-------|    |-------|   K  |   L  |   ,  |   .  |   /  |RShift|
  * `-----------------------------------------/      /      \      \-----------------------------------------'
- *            | CDown|  CUp |  Alt |      | / MEGA /        \      \  |      |      | CLeft|CRight|
+ *            | CDown|  CUp |  Alt | Space| / MEGA /        \      \  |      |      | CLeft|CRight|
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
  *            `----------------------------------'            '------''---------------------------'
  */
@@ -206,7 +206,7 @@ KC_1,       KC_2,       KC_3,       KC_4,       KC_5,       KC_6,               
 KC_ENTER,   KC_Q,       KC_D,       KC_R,       KC_W,       KC_B,                               KC_J,       KC_F,       KC_U,       KC_P,       KC_SCLN,    KC_TAB,
 KC_BSPC,    KC_A,       KC_S,       KC_H,       KC_T,       KC_G,                               KC_Y,       KC_N,       KC_E,       KC_O,       KC_I,       KC_QUOT,
 KC_LSFT,    KC_Z,       KC_X,       KC_M,       KC_C,       KC_V,       KC_ENCL,    KC_ENCR,    KC_K,       KC_L,       KC_COMM,    KC_DOT,     KC_SLSH,    KC_RSFT,
-                        C(KC_DOWN), C(KC_UP),   KC_LALT,    KC_NO,      KC_TRNS,    KC_NO,      KC_NO,      KC_NO,      C(KC_LEFT), C(KC_RIGHT)
+                        C(KC_DOWN), C(KC_UP),   KC_LALT,    KC_SPC,     KC_TRNS,    KC_NO,      KC_NO,      KC_NO,      C(KC_LEFT), C(KC_RIGHT)
 ),
 /*
  * MINI
@@ -219,7 +219,7 @@ KC_LSFT,    KC_Z,       KC_X,       KC_M,       KC_C,       KC_V,       KC_ENCL,
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
  * | Boot |      |      | SLLD |      |      |-------|    |-------|      | CBspc| DelL | CDel |      |      |
  * `-----------------------------------------/      /      \      \-----------------------------------------'
- *            | Down |  Up  | MINI |      | / Ctrl /        \      \  |      |      | Left | Right|
+ *            | Down |  Up  | MINI | Space| / Ctrl /        \      \  |      |      | Left | Right|
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
  *            `----------------------------------'            '------''---------------------------'
  */
@@ -229,7 +229,7 @@ KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,              
 KC_NO,      KC_NO,      KC_SLLL,    KC_SLLU,    KC_SLLR,    KC_NO,                              KC_NO,      KC_SLRH,    KC_SLRU,    KC_SLRE,    KC_NO,      KC_NO,
 KC_NO,      KC_NO,      KC_SLMA,    KC_SLMC,    KC_SLMS,    KC_NO,                              KC_NO,      KC_SLRL,    KC_SLRD,    KC_SLRR,    KC_NO,      KC_NO,
 QK_BOOT,    KC_NO,      KC_NO,      KC_SLLD,    KC_NO,      KC_NO,      KC_TRNS,    KC_TRNS,    KC_NO,      C(KC_BSPC), KC_DELL,    C(KC_DEL),  KC_NO,      KC_NO,
-                        KC_DOWN,    KC_UP,      KC_TRNS,    KC_NO,      KC_LCTL,    KC_NO,      KC_NO,      KC_NO,      KC_LEFT,    KC_RIGHT
+                        KC_DOWN,    KC_UP,      KC_TRNS,    KC_SPC,     KC_LCTL,    KC_NO,      KC_NO,      KC_NO,      KC_LEFT,    KC_RIGHT
 ),
 };
 
@@ -1205,7 +1205,7 @@ static bool oneshot_mega(uint16_t keycode, long long time, bool pressed) {
                 deactivate_all_oneshots();
                 return false;
             default:
-                return false;
+                return true;
         }
     }
 }
