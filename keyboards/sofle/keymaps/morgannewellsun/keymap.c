@@ -785,9 +785,9 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
 #define N_MKEYS 2
 #define MKEY_MULTITAPPING_TERM 300LL
 
-const uint16_t MKEY_TOGGLE_KEYCODES[] = {KC_F19, KC_F24};
+const uint16_t MKEY_TOGGLE_KEYCODES[] = {KC_NO, KC_F24};
 const uint16_t MKEY_MODIFIER_KEYCODES[] = {KC_LALT, KC_LCTL};
-const uint16_t MKEY_MULTITAP_KEYCODES[] = {C(A(KC_DEL)), C(S(KC_ESC))};
+const uint16_t MKEY_MULTITAP_KEYCODES[] = {C(A(KC_DEL)), KC_NO};  // Reminder to add C(S(KC_ESC)) for task manager later
 const uint8_t MKEY_LAYERS[] = {_MINI, _MEGA};
 const int MKEY_TAPPING_TERM[] = {600, 200};
 const bool MKEY_EAGER[] = {false, true};
