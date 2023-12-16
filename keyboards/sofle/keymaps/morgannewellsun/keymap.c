@@ -197,7 +197,7 @@ KC_LSFT,    KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_TRNS,
  * |------+------+------+------+------+------|  ENCL |    | ENCR  |------+------+------+------+------+------|
  * |LShift|   Z  |   X  |   M  |   C  |   V  |-------|    |-------|   K  |   L  |   ,  |   .  |   /  |RShift|
  * `-----------------------------------------/      /      \      \-----------------------------------------'
- *            | CDown|  CUp |  Alt | Space| / MEGA /        \      \  |      |      | CLeft|CRight|
+ *            | Down |  Up  |  Alt | Space| / MEGA /        \      \  |      |      | Left | Right|
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
  *            `----------------------------------'            '------''---------------------------'
  */
@@ -206,7 +206,7 @@ KC_1,       KC_2,       KC_3,       KC_4,       KC_5,       KC_6,               
 KC_ENTER,   KC_Q,       KC_D,       KC_R,       KC_W,       KC_B,                               KC_J,       KC_F,       KC_U,       KC_P,       KC_SCLN,    KC_TAB,
 KC_BSPC,    KC_A,       KC_S,       KC_H,       KC_T,       KC_G,                               KC_Y,       KC_N,       KC_E,       KC_O,       KC_I,       KC_QUOT,
 KC_LSFT,    KC_Z,       KC_X,       KC_M,       KC_C,       KC_V,       KC_ENCL,    KC_ENCR,    KC_K,       KC_L,       KC_COMM,    KC_DOT,     KC_SLSH,    KC_RSFT,
-                        C(KC_DOWN), C(KC_UP),   KC_LALT,    KC_SPC,     KC_TRNS,    KC_NO,      KC_NO,      KC_NO,      C(KC_LEFT), C(KC_RIGHT)
+                        KC_DOWN,    KC_UP,      KC_LALT,    KC_SPC,     KC_TRNS,    KC_NO,      KC_NO,      KC_NO,      KC_LEFT,    KC_RIGHT
 ),
 /*
  * MINI
