@@ -566,12 +566,30 @@ static bool process_symb(bool pressed, long long time) {
 
 void caps_word_set_user(bool active) {
     if (active) {
+        if (get_highest_layer(layer_state) != _WORK) {
+            caps_word_off();
+            return;
+        }
+        for (int i = 0; i < N_MKEYS; ++i) {
+            if (mkey_oneshot_active[i]) {
+                caps_word_off();
+                return;
+            }
+        }
         rgb_set_first_waypoint(HUE_CAPSWORD_ACCENT, 255, 0, 0);
         rgb_set_next_waypoint(HUE_CAPSWORD_ACCENT, 255, RGBLIGHT_LIMIT_VAL, 50);
         rgb_set_next_waypoint(HUE_CAPSWORD_ACCENT, 255, RGBLIGHT_LIMIT_VAL, 50);
         rgb_set_next_waypoint(HUE_CAPSWORD_ACCENT, SAT_BASE, RGBLIGHT_LIMIT_VAL, 500);
         rgb_set_next_waypoint(HUE_CAPSWORD_ACCENT, SAT_BASE, RGBLIGHT_LIMIT_VAL, 500);
     } else {
+        if (get_highest_layer(layer_state) != _WORK) {
+            return;
+        }
+        for (int i = 0; i < N_MKEYS; ++i) {
+            if (mkey_oneshot_active[i]) {
+                return;
+            }
+        }
         rgb_set_first_waypoint(HUE_CAPSWORD_ACCENT, 255, RGBLIGHT_LIMIT_VAL, 50);
         rgb_set_next_waypoint(HUE_CAPSWORD_ACCENT, 255, 0, 100);
         rgb_set_next_waypoint(HUE_CAPSWORD_ACCENT, 255, 0, 100);
