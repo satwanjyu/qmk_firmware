@@ -4,12 +4,6 @@
 #endif
 
 // ============================================================================
-// SHARED GLOBAL VARIABLES
-// ============================================================================
-
-long long ll_time = 0;  // uint16_t timer rolls over every minute
-
-// ============================================================================
 // KEYCODES AND LAYERS
 // ============================================================================
 
@@ -65,6 +59,156 @@ enum sofle_layers {
     _MEGA,
     _MINI,
 };
+
+// ============================================================================
+// SHARED GLOBAL VARIABLES
+// ============================================================================
+
+//
+// TIMERS
+//
+
+long long ll_time = 0;  // uint16_t timer rolls over every minute
+
+//
+// ENCODERS
+//
+
+#if defined(ENCODER_ENABLE) && defined (MIDI_ENABLE)
+
+#define ENCODER_CHANNEL_SENS 8
+#define ENCODER_LEFT_CHANNEL 1
+#define ENCODER_RIGHT_CHANNEL 2
+
+extern MidiDevice midi_device;
+
+uint8_t encoder_left_value = 0;
+uint8_t encoder_right_value = 0;
+
+bool encoder_left_pressed = false;
+bool encoder_right_pressed = false;
+
+#endif
+
+//
+// RGB INDICATORS
+//
+
+#ifdef RGBLIGHT_ENABLE
+
+// One-shot modifiers and caps-word are represented with saturated colors
+#define HUE_MAIN 115  // Main color for MEGA and MINI modifier animations
+#define HUE_MINI_ACCENT 80  // Accent color for MINI modifier animations
+#define HUE_MEGA_ACCENT 170  // Accent color for MEGA modifier animations
+#define HUE_DRIFT_AMP 10  // Amount by which the hue drifts while an oneshot modifier is active
+
+// Alternative base layers, as well as capsword, are represented with near-white colors
+#define SAT_BASE 0  // Saturation used while the QWER or GAME layer is active
+#define HUE_QWER_ACCENT 15  // Accent color for the QWER layer
+#define HUE_GAME_ACCENT 190  // Accent color for the GAME layer
+#define HUE_CAPSWORD_ACCENT HUE_MAIN  // Main color for caps word
+
+#define MAX_N_RGB_WAYPOINTS 16
+#define RGB_UPDATE_INTERVAL 5
+
+HSV rgb_waypoints[MAX_N_RGB_WAYPOINTS];
+long long rgb_times[MAX_N_RGB_WAYPOINTS];
+HSV rgb_current_state = {HSV_BLACK};
+int rgb_current_start_idx = 0;
+int n_rgb_waypoints = 0;
+long long rgb_next_update_time = 0LL;
+
+#endif
+
+//
+// SYMBOL TAP-HOLD
+//
+
+bool symb_interrupt_on = false;
+bool symb_was_interrupted = false;
+long long symb_start_time = 0;
+
+//
+// DUAL UNDO/REDO
+//
+
+bool redo_next = false;
+
+//
+// ARROW KEY MODIFIER SELECTION
+//
+
+enum select_mods {
+    SELECT_ALT,
+    SELECT_CTRL,
+    SELECT_SHIFT,
+    SELECT_NONE,
+};
+
+bool select_ctrl_pressed = false;
+bool select_shift_pressed = false;
+bool select_alt_pressed = false;
+int select_last_modifier = SELECT_ALT;
+uint16_t keycode_to_send;
+
+//
+// OVERLOADED MODIFIER KEYS
+//
+
+#define MEGA_DUAL_KEYCODE KC_M  // Not a one-shot
+#define MEGA_UNDO_KEYCODE KC_H  // Not a one-shot
+#define MEGA_REDO_KEYCODE KC_R  // Not a one-shot
+#define MEGA_DEL_KEYCODE KC_G  // Is an one-shot
+#define MEGA_ESC_KEYCODE KC_T  // Is an one-shot
+#define MEGA_GUI_KEYCODE KC_S  // Is an one-shot
+#define MEGA_PSCR_KEYCODE KC_A  // Is an one-shot
+
+// // Numpad that gets toggled on/off using MEGA (unsure about if I want this or not, it's not implemented yet)
+// #define MEGA_1_KEYCODE KC_L
+// #define MEGA_2_KEYCODE KC_COMM
+// #define MEGA_3_KEYCODE KC_DOT
+// #define MEGA_4_KEYCODE KC_N
+// #define MEGA_5_KEYCODE KC_E
+// #define MEGA_6_KEYCODE KC_O
+// #define MEGA_7_KEYCODE KC_F
+// #define MEGA_8_KEYCODE KC_U
+// #define MEGA_9_KEYCODE KC_P
+// #define MEGA_0_KEYCODE KC_I
+
+#define N_MKEYS 2
+#define MKEY_MULTITAPPING_TERM 300LL
+
+const uint16_t MKEY_TOGGLE_KEYCODES[] = {KC_NO, KC_F24};
+const uint16_t MKEY_MODIFIER_KEYCODES[] = {KC_LALT, KC_LCTL};
+const uint16_t MKEY_MULTITAP_KEYCODES[] = {C(A(KC_DEL)), KC_NO};  // Reminder to add C(S(KC_ESC)) for task manager later
+const uint8_t MKEY_LAYERS[] = {_MINI, _MEGA};
+const int MKEY_TAPPING_TERM[] = {600, 200};
+const bool MKEY_EAGER[] = {false, true};
+const bool MKEY_MOD_UP_ON_INTERRUPT[] = {true, false};
+
+bool mkey_interrupt_on[N_MKEYS] = {false};
+bool mkey_timer_on[N_MKEYS] = {false};
+bool mkey_was_interrupted[N_MKEYS] = {false};
+bool mkey_was_timed_out[N_MKEYS] = {false};
+long long mkey_down_start_time[N_MKEYS] = {0};
+
+bool mkey_oneshot_suppression = false;
+bool mkey_oneshot_active[N_MKEYS] = {false};
+bool mkey_multitap_possible[N_MKEYS] = {false};
+long long mkey_multitap_start_time[N_MKEYS] = {0};
+bool mkey_multitap_streak[N_MKEYS] = {false};
+
+//
+// BASE LAYER TOGGLE
+//
+
+#define BASE_TAPPING_TERM 300
+
+bool base_timer_on = false;
+bool base_timed_out = false;
+long long base_start_time = 0;
+bool base_toggle_suppression = false;
+bool base_complete_suppression = false;
 
 // ============================================================================
 // KEYMAPS
@@ -267,17 +411,6 @@ bool oled_task_user(void) {
 
 #if defined(ENCODER_ENABLE) && defined (MIDI_ENABLE)
 
-#define ENCODER_CHANNEL_SENS 8
-
-extern MidiDevice midi_device;
-
-#define ENCODER_LEFT_CHANNEL 1
-#define ENCODER_RIGHT_CHANNEL 2
-uint8_t encoder_left_value = 0;
-uint8_t encoder_right_value = 0;
-bool encoder_left_pressed = false;
-bool encoder_right_pressed = false;
-
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) {
         if (!encoder_left_pressed) {
@@ -321,28 +454,6 @@ static bool process_enco(bool pressed, bool right) {
 // ============================================================================
 
 #ifdef RGBLIGHT_ENABLE
-
-// One-shot modifiers and caps-word are represented with saturated colors
-#define HUE_MAIN 115  // Main color for MEGA and MINI modifier animations
-#define HUE_MINI_ACCENT 80  // Accent color for MINI modifier animations
-#define HUE_MEGA_ACCENT 170  // Accent color for MEGA modifier animations
-#define HUE_DRIFT_AMP 10  // Amount by which the hue drifts while an oneshot modifier is active
-
-// Alternative base layers, as well as capsword, are represented with near-white colors
-#define SAT_BASE 0  // Saturation used while the QWER or GAME layer is active
-#define HUE_QWER_ACCENT 15  // Accent color for the QWER layer
-#define HUE_GAME_ACCENT 190  // Accent color for the GAME layer
-#define HUE_CAPSWORD_ACCENT HUE_MAIN  // Main color for caps word
-
-#define MAX_N_RGB_WAYPOINTS 16
-#define RGB_UPDATE_INTERVAL 5
-
-HSV rgb_waypoints[MAX_N_RGB_WAYPOINTS];
-long long rgb_times[MAX_N_RGB_WAYPOINTS];
-HSV rgb_current_state = {HSV_BLACK};
-int rgb_current_start_idx = 0;
-int n_rgb_waypoints = 0;
-long long rgb_next_update_time = 0LL;
 
 static HSV hsv_lerp(HSV start_hsv, HSV end_hsv, float ratio) {
     HSV result;
@@ -427,16 +538,6 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 // SYMBOL TAP-HOLD
 // ============================================================================
 
-
-// #define SYMB_TAP_KC KC_UNDS
-#ifdef SYMB_TAP_KC
-#define SYMB_TAPPING_TERM 150LL
-#endif
-
-bool symb_interrupt_on = false;
-bool symb_was_interrupted = false;
-long long symb_start_time = 0;
-
 static void symb_interrupt(bool interrupt_pressed, uint16_t keycode) {
     if (interrupt_pressed && keycode != KC_SYMB) {
         symb_interrupt_on = false;
@@ -453,11 +554,6 @@ static bool process_symb(bool pressed, long long time) {
     } else {
         layer_off(_SYMB);
         symb_interrupt_on = false;
-#ifdef SYMB_TAP_KC
-        if (!symb_was_interrupted && time - symb_start_time < SYMB_TAPPING_TERM) {
-            tap_code16(SYMB_TAP_KC);
-        }
-#endif
     }
     return false;
 }
@@ -544,8 +640,6 @@ static bool process_dell(bool pressed) {
 // DUAL UNDO/REDO
 // ============================================================================
 
-bool redo_next = false;
-
 static bool process_dual(bool pressed) {
     if (pressed) {
         if (redo_next) {
@@ -597,19 +691,6 @@ This functionality serves two purposes. It only applies to when the MINI layer i
     - Press KC_SLMA to switch this to nothing.
 
  */
-
-enum select_mods {
-    SELECT_ALT,
-    SELECT_CTRL,
-    SELECT_SHIFT,
-    SELECT_NONE,
-};
-
-bool select_ctrl_pressed = false;
-bool select_shift_pressed = false;
-bool select_alt_pressed = false;
-int select_last_modifier = SELECT_ALT;
-uint16_t keycode_to_send;
 
 static bool process_slxx(bool pressed, uint16_t keycode) {
     switch (keycode) {
@@ -754,49 +835,6 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
             - Deactivates the aforementioned modifier
 
  */
-
-#define MEGA_DUAL_KEYCODE KC_M  // Not a one-shot
-#define MEGA_UNDO_KEYCODE KC_H  // Not a one-shot
-#define MEGA_REDO_KEYCODE KC_R  // Not a one-shot
-#define MEGA_DEL_KEYCODE KC_G  // Is an one-shot
-#define MEGA_ESC_KEYCODE KC_T  // Is an one-shot
-#define MEGA_GUI_KEYCODE KC_S  // Is an one-shot
-#define MEGA_PSCR_KEYCODE KC_A  // Is an one-shot
-
-// // Numpad that gets toggled on/off using MEGA (unsure about if I want this or not, it's not implemented yet)
-// #define MEGA_1_KEYCODE KC_L
-// #define MEGA_2_KEYCODE KC_COMM
-// #define MEGA_3_KEYCODE KC_DOT
-// #define MEGA_4_KEYCODE KC_N
-// #define MEGA_5_KEYCODE KC_E
-// #define MEGA_6_KEYCODE KC_O
-// #define MEGA_7_KEYCODE KC_F
-// #define MEGA_8_KEYCODE KC_U
-// #define MEGA_9_KEYCODE KC_P
-// #define MEGA_0_KEYCODE KC_I
-
-#define N_MKEYS 2
-#define MKEY_MULTITAPPING_TERM 300LL
-
-const uint16_t MKEY_TOGGLE_KEYCODES[] = {KC_NO, KC_F24};
-const uint16_t MKEY_MODIFIER_KEYCODES[] = {KC_LALT, KC_LCTL};
-const uint16_t MKEY_MULTITAP_KEYCODES[] = {C(A(KC_DEL)), KC_NO};  // Reminder to add C(S(KC_ESC)) for task manager later
-const uint8_t MKEY_LAYERS[] = {_MINI, _MEGA};
-const int MKEY_TAPPING_TERM[] = {600, 200};
-const bool MKEY_EAGER[] = {false, true};
-const bool MKEY_MOD_UP_ON_INTERRUPT[] = {true, false};
-
-bool mkey_interrupt_on[N_MKEYS] = {false};
-bool mkey_timer_on[N_MKEYS] = {false};
-bool mkey_was_interrupted[N_MKEYS] = {false};
-bool mkey_was_timed_out[N_MKEYS] = {false};
-long long mkey_down_start_time[N_MKEYS] = {0};
-
-bool mkey_oneshot_suppression = false;
-bool mkey_oneshot_active[N_MKEYS] = {false};
-bool mkey_multitap_possible[N_MKEYS] = {false};
-long long mkey_multitap_start_time[N_MKEYS] = {0};
-bool mkey_multitap_streak[N_MKEYS] = {false};
 
 static void activate_oneshot(int mkey_idx) {
     tap_code16(MKEY_TOGGLE_KEYCODES[mkey_idx]);
@@ -1003,14 +1041,6 @@ static bool process_mkey(bool pressed, long long time, int mkey_idx) {
 // ============================================================================
 // BASE LAYER TOGGLE
 // ============================================================================
-
-#define BASE_TAPPING_TERM 300
-
-bool base_timer_on = false;
-bool base_timed_out = false;
-long long base_start_time = 0;
-bool base_toggle_suppression = false;
-bool base_complete_suppression = false;
 
 static void base_activate_layer(uint8_t layer) {
     switch (layer) {
