@@ -192,6 +192,17 @@ long long mkey_multitap_start_time[N_MKEYS] = {0};
 bool mkey_multitap_streak[N_MKEYS] = {false};
 
 //
+// DYNAMIC ONESHOT PERSISTENCE
+//
+
+#define OSL_TAPPING_TERM 175LL
+
+bool osl_timer_on = false;
+bool osl_timer_lock = false;
+uint16_t osl_last_keycode = KC_NO;
+long long osl_end_time = 0;
+
+//
 // BASE LAYER TOGGLE
 //
 
@@ -305,7 +316,7 @@ KC_NO,      KC_NO,      KC_NO,      KC_LBRC,    KC_RBRC,    KC_NO,      KC_TRNS,
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |      |      |      |      |      |      |-------.    ,-------|      |      |      |      |      |      |
  * |------+------+------+------+------+------|  ENCL |    | ENCR  |------+------+------+------+------+------|
- * | Shift|      |      |      |      |      |-------|    |-------|      |      |      |      |      | Shift|
+ * |LShift|      |      |      |      |      |-------|    |-------|      |      |      |      |      |RShift|
  * `-----------------------------------------/      /      \      \-----------------------------------------'
  *            |      |      |  Alt | Space| / Ctrl /        \ Boot \  |      | FUNC |      |      |
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
@@ -350,7 +361,7 @@ KC_LSFT,    KC_Z,       KC_X,       KC_M,       KC_C,       KC_V,       KC_ENCL,
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |      |      | SLMA | SLMC | SLMS |      |-------.    ,-------|      | SLRL | SLRD | SLRR |      |      |
  * |------+------+------+------+------+------|  ENCL |    | ENCR  |------+------+------+------+------+------|
- * | Boot |      |      | SLLD |      |      |-------|    |-------|      | CBspc| DelL | CDel |      |      |
+ * |LShift|      |      | SLLD |      |      |-------|    |-------|      | CBspc| DelL | CDel |      |      |
  * `-----------------------------------------/      /      \      \-----------------------------------------'
  *            | Down |  Up  | MINI | Space| / Ctrl /        \      \  |      |      | Left | Right|
  *            |      |      |      |      |/      /          \      \ |      |      |      |      |
@@ -361,7 +372,7 @@ KC_LSFT,    KC_Z,       KC_X,       KC_M,       KC_C,       KC_V,       KC_ENCL,
 KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,                              KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,      KC_NO,
 KC_NO,      KC_NO,      KC_SLLL,    KC_SLLU,    KC_SLLR,    KC_NO,                              KC_NO,      KC_SLRH,    KC_SLRU,    KC_SLRE,    KC_NO,      KC_NO,
 KC_NO,      KC_NO,      KC_SLMA,    KC_SLMC,    KC_SLMS,    KC_NO,                              KC_NO,      KC_SLRL,    KC_SLRD,    KC_SLRR,    KC_NO,      KC_NO,
-QK_BOOT,    KC_NO,      KC_NO,      KC_SLLD,    KC_NO,      KC_NO,      KC_TRNS,    KC_TRNS,    KC_NO,      C(KC_BSPC), KC_DELL,    C(KC_DEL),  KC_NO,      KC_NO,
+KC_LSFT,    KC_NO,      KC_NO,      KC_SLLD,    KC_NO,      KC_NO,      KC_TRNS,    KC_TRNS,    KC_NO,      C(KC_BSPC), KC_DELL,    C(KC_DEL),  KC_NO,      KC_NO,
                         KC_DOWN,    KC_UP,      KC_TRNS,    KC_SPC,     KC_LCTL,    KC_NO,      KC_NO,      KC_NO,      KC_LEFT,    KC_RIGHT
 ),
 };
@@ -928,6 +939,7 @@ static void deactivate_all_oneshots(void) {
             mkey_oneshot_active[i] = false;
         }
     }
+    osl_timer_lock = false;
 }
 
 static void mkey_activate_layer(int mkey_idx) {
@@ -1176,6 +1188,13 @@ static bool keycode_is_basic(uint16_t keycode) {
     return keycode >= KC_A && keycode <= KC_F24;
 }
 
+static void oneshot_try_set_timer(long long time) {
+    if (!osl_timer_lock) {
+        osl_timer_on = true;
+        osl_end_time = time + OSL_TAPPING_TERM;
+    }
+}
+
 static bool oneshot_mega_mini(uint16_t keycode, bool pressed) {
     if (!pressed) {
         return true;
@@ -1191,26 +1210,40 @@ static bool oneshot_mega_mini(uint16_t keycode, bool pressed) {
 }
 
 static bool oneshot_mega(uint16_t keycode, long long time, bool pressed) {
-    // It's called "oneshot" but I turned it into more of a toggle by removing deactivate_oneshot()
+    // To allow certain keys on this oneshot layer to be pressed multiple times, 
+    // the oneshot layer becomes persistent if these keys are tapped rapidly.
     if (keycode == KC_LSFT || keycode == KC_RSFT) {
         return true;
     } else if (!keycode_is_basic(keycode)) {
         return false;
     } else {
+        if (osl_timer_on && pressed) {
+            osl_timer_on = false;
+            if (keycode == osl_last_keycode) {
+                osl_timer_lock = true;
+            } else {
+                deactivate_all_oneshots();
+                return true;
+            }
+        }
+        osl_last_keycode = keycode;
         switch (keycode) {
             case MEGA_DUAL_KEYCODE:
+                oneshot_try_set_timer(time);
                 return process_dual(pressed);
             case MEGA_UNDO_KEYCODE:
+                oneshot_try_set_timer(time);
                 return process_undo(pressed);
             case MEGA_REDO_KEYCODE:
+                oneshot_try_set_timer(time);
                 return process_redo(pressed);
             case MEGA_DEL_KEYCODE:
+                oneshot_try_set_timer(time);
                 tap_code(KC_DEL);
-                deactivate_all_oneshots();
                 return false;
             case MEGA_ESC_KEYCODE:
+                oneshot_try_set_timer(time);
                 tap_code(KC_ESC);
-                deactivate_all_oneshots();
                 return false;
             case MEGA_GUI_KEYCODE:
                 tap_code(KC_LGUI);
@@ -1323,6 +1356,12 @@ void matrix_scan_user(void) {
         if (mkey_timer_on[i] && ll_time - mkey_down_start_time[i] >= MKEY_TAPPING_TERM[i]) {
             mkey_timeout(i);
         }
+    }
+
+    // OSL timer
+    if (osl_timer_on && ll_time >= osl_end_time) {
+        deactivate_all_oneshots();
+        osl_timer_on = false;
     }
 
 #ifdef RGBLIGHT_ENABLE
