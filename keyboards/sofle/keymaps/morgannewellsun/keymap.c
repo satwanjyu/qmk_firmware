@@ -31,10 +31,6 @@ enum custom_keycodes {
     // Delete a whole line of text
     KC_DELL,
 
-    // Alt-tab forwards and backwards
-    // KC_ATFW,  commented because I don't use it
-    // KC_ATBK,  commented because I don't use it
-
     // Undo and redo, as well as "dual" which toggles between the two
     KC_DUAL,
     // KC_UNDO,  commented because already part of HID standard
@@ -418,7 +414,6 @@ static void rgb_set_next_waypoint(uint8_t h, uint8_t s, uint8_t v, uint16_t dura
 
 const key_override_t key_override_nine = ko_make_basic(MOD_MASK_SHIFT, KC_9, KC_PIPE);
 const key_override_t key_override_zero = ko_make_basic(MOD_MASK_SHIFT, KC_0, KC_BACKSLASH);
-// const key_override_t key_override_minus = ko_make_basic(MOD_MASK_SHIFT, KC_MINUS, KC_GRAVE);
 
 const key_override_t **key_overrides = (const key_override_t *[]){
     &key_override_nine,
@@ -763,8 +758,6 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
 #define MEGA_DUAL_KEYCODE KC_M  // Not a one-shot
 #define MEGA_UNDO_KEYCODE KC_H  // Not a one-shot
 #define MEGA_REDO_KEYCODE KC_R  // Not a one-shot
-// #define MEGA_ATFW_KEYCODE KC_  // Not a one-shot, disabled
-// #define MEGA_ATBK_KEYCODE KC_  // Not a one-shot, disabled
 #define MEGA_DEL_KEYCODE KC_G  // Is an one-shot
 #define MEGA_ESC_KEYCODE KC_T  // Is an one-shot
 #define MEGA_GUI_KEYCODE KC_S  // Is an one-shot
@@ -1113,46 +1106,6 @@ static bool process_base(bool pressed, long long time) {
 }
 
 // ============================================================================
-// AUTO ALT-TAB
-// ============================================================================
-
-// #define ATAB_DURATION 1000LL
-
-// bool atab_interrupt_and_timer_on = false;
-// long long atab_start_time = 0;
-
-// static void atab_interrupt(uint16_t keycode) {
-//     bool interrupt = true;
-//     interrupt = interrupt && keycode != KC_ATFW && keycode != KC_ATBK;
-//     interrupt = interrupt && (!mkey_oneshot_active[1] || (keycode != MEGA_ATFW_KEYCODE && keycode != MEGA_ATBK_KEYCODE));
-//     if (interrupt) {
-//         atab_interrupt_and_timer_on = false;
-//         unregister_code(KC_LALT);
-//     }
-// }
-
-// static void atab_timeout(void) {
-//     atab_interrupt_and_timer_on = false;
-//     unregister_code(KC_LALT);
-// }
-
-// static bool process_atab(bool pressed, long long time, bool backwards) {
-//     if (pressed) {
-//         if (!atab_interrupt_and_timer_on) {
-//             atab_interrupt_and_timer_on = true;
-//             register_code(KC_LALT);
-//         }
-//         atab_start_time = time;
-//         if (backwards) {
-//             tap_code16(S(KC_TAB));
-//         } else {
-//             tap_code(KC_TAB);
-//         }
-//     }
-//     return false;
-// }
-
-// ============================================================================
 // ONESHOT LOGIC
 // ============================================================================
 
@@ -1188,10 +1141,6 @@ static bool oneshot_mega(uint16_t keycode, long long time, bool pressed) {
                 return process_undo(pressed);
             case MEGA_REDO_KEYCODE:
                 return process_redo(pressed);
-            // case MEGA_ATFW_KEYCODE:
-            //     return process_atab(pressed, time, false);
-            // case MEGA_ATBK_KEYCODE:
-            //     return process_atab(pressed, time, true);
             case MEGA_DEL_KEYCODE:
                 tap_code(KC_DEL);
                 deactivate_all_oneshots();
@@ -1250,9 +1199,6 @@ static void check_hold_interrupts(bool pressed, uint16_t keycode) {
     if (symb_interrupt_on) {
         symb_interrupt(pressed, keycode);
     }
-    // if (atab_interrupt_and_timer_on) {
-    //     atab_interrupt(keycode);
-    // }
     for (int i = 0; i < N_MKEYS; i++) {
         if (mkey_interrupt_on[i]) {
             mkey_interrupt(pressed, keycode, i);
@@ -1276,10 +1222,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return process_func(record->event.pressed);
         case KC_DELL:
             return process_dell(record->event.pressed);
-        // case KC_ATFW:
-        //     return process_atab(record->event.pressed, ll_time, false);
-        // case KC_ATBK:
-        //     return process_atab(record->event.pressed, ll_time, true);
         case KC_DUAL:
             return process_dual(record->event.pressed);
         case KC_UNDO:
@@ -1310,11 +1252,6 @@ void matrix_scan_user(void) {
     // Maintain a long long timer to prevent bugs from rollovers
     ll_time += timer_elapsed(prev_time);
     prev_time = timer_read();
-
-    // Alt tab timer
-    // if (atab_interrupt_and_timer_on && ll_time - atab_start_time >= ATAB_DURATION) {
-    //     atab_timeout();
-    // }
 
     // Base layer timer
     if (base_timer_on && ll_time - base_start_time >= BASE_TAPPING_TERM) {
