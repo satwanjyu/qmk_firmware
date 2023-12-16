@@ -121,14 +121,6 @@ long long rgb_next_update_time = 0LL;
 #endif
 
 //
-// SYMBOL TAP-HOLD
-//
-
-bool symb_interrupt_on = false;
-bool symb_was_interrupted = false;
-long long symb_start_time = 0;
-
-//
 // DUAL UNDO/REDO
 //
 
@@ -207,7 +199,7 @@ bool mkey_multitap_streak[N_MKEYS] = {false};
 
 bool base_timer_on = false;
 bool base_timed_out = false;
-long long base_start_time = 0;
+long long base_end_time = 0;
 bool base_toggle_suppression = false;
 bool base_complete_suppression = false;
 
@@ -539,22 +531,11 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 // SYMBOL TAP-HOLD
 // ============================================================================
 
-static void symb_interrupt(bool interrupt_pressed, uint16_t keycode) {
-    if (interrupt_pressed && keycode != KC_SYMB) {
-        symb_interrupt_on = false;
-        symb_was_interrupted = true;
-    }
-}
-
 static bool process_symb(bool pressed, long long time) {
     if (pressed) {
         layer_on(_SYMB);
-        symb_interrupt_on = true;
-        symb_was_interrupted = false;
-        symb_start_time = time;
     } else {
         layer_off(_SYMB);
-        symb_interrupt_on = false;
     }
     return false;
 }
@@ -1173,7 +1154,7 @@ static bool process_base(bool pressed, long long time) {
         } else {
             base_timer_on = true;
             base_timed_out = false;
-            base_start_time = time;
+            base_end_time = time + BASE_TAPPING_TERM;
             base_toggle_suppression = false;
         }
     } else if (!base_toggle_suppression && !base_timed_out) {
@@ -1278,9 +1259,6 @@ static bool process_other(bool pressed, long long time, uint16_t keycode) {
 // ============================================================================
 
 static void check_hold_interrupts(bool pressed, uint16_t keycode) {
-    if (symb_interrupt_on) {
-        symb_interrupt(pressed, keycode);
-    }
     for (int i = 0; i < N_MKEYS; i++) {
         if (mkey_interrupt_on[i]) {
             mkey_interrupt(pressed, keycode, i);
@@ -1336,7 +1314,7 @@ void matrix_scan_user(void) {
     prev_time = timer_read();
 
     // Base layer timer
-    if (base_timer_on && ll_time - base_start_time >= BASE_TAPPING_TERM) {
+    if (base_timer_on && ll_time >= base_end_time) {
         base_timeout();
     }
 
