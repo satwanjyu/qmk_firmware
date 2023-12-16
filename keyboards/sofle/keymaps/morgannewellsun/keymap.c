@@ -139,16 +139,17 @@ bool redo_next = false;
 //
 
 enum select_mods {
+    SELECT_NONE,
     SELECT_ALT,
     SELECT_CTRL,
     SELECT_SHIFT,
-    SELECT_NONE,
 };
 
 bool select_ctrl_pressed = false;
 bool select_shift_pressed = false;
 bool select_alt_pressed = false;
-int select_last_modifier = SELECT_ALT;
+int select_last_modifier = SELECT_NONE;
+uint16_t select_last_keycode = KC_NO;
 uint16_t keycode_to_send;
 
 //
@@ -703,10 +704,11 @@ This functionality serves two purposes. It only applies to when the MINI layer i
     - Apply the SHIFT modifer to any of these keys using KC_SLMS.
     - Apply the ALT modifier to any of these keys using KC_SLMA.
 - While mousing with the right hand, use left-hand DXCV as arrow keys.
-    - By default, ALT is applied to these keys.
+    - By default, no modifier is applied to these keys.
     - Press KC_SLMC to switch this to CTRL.
     - Press KC_SLMS to switch this to SHIFT.
-    - Press KC_SLMA to switch this to nothing.
+    - Press KC_SLMA to switch this to ALT.
+    - Tap the same KC_SLMX key twice in a row to reset to nothing.
 
  */
 
@@ -716,7 +718,17 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
         case KC_SLMC:
             if (pressed) {
                 select_ctrl_pressed = true;
-                select_last_modifier = SELECT_CTRL;
+                if (select_last_keycode == KC_SLMC) {
+                    select_last_modifier = SELECT_NONE;
+                    select_last_keycode = KC_NO;
+                } else  {
+                    if (select_last_modifier == SELECT_CTRL) {
+                        select_last_modifier = SELECT_NONE;
+                    } else {
+                        select_last_modifier = SELECT_CTRL;
+                    }
+                    select_last_keycode = KC_SLMC;
+                }
             } else {
                 select_ctrl_pressed = false;
             }
@@ -724,21 +736,42 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
         case KC_SLMS:
             if (pressed) {
                 select_shift_pressed = true;
-                select_last_modifier = SELECT_SHIFT;
+                if (select_last_keycode == KC_SLMS) {
+                    select_last_modifier = SELECT_NONE;
+                    select_last_keycode = KC_NO;
+                } else  {
+                    if (select_last_modifier == SELECT_SHIFT) {
+                        select_last_modifier = SELECT_NONE;
+                    } else {
+                        select_last_modifier = SELECT_SHIFT;
+                    }
+                    select_last_keycode = KC_SLMS;
+                }
             } else {
-                 select_shift_pressed = false;
+                select_shift_pressed = false;
             }
             return false;
         case KC_SLMA:
             if (pressed) {
-                 select_alt_pressed = true;
-                 select_last_modifier = SELECT_NONE;
+                select_alt_pressed = true;
+                if (select_last_keycode == KC_SLMA) {
+                    select_last_modifier = SELECT_NONE;
+                    select_last_keycode = KC_NO;
+                } else  {
+                    if (select_last_modifier == SELECT_ALT) {
+                        select_last_modifier = SELECT_NONE;
+                    } else {
+                        select_last_modifier = SELECT_ALT;
+                    }
+                    select_last_keycode = KC_SLMA;
+                }
             } else {
-                 select_alt_pressed = false;
+                select_alt_pressed = false;
             }
             return false;
 
         case KC_SLRU ... KC_SLRE:
+            select_last_keycode = KC_NO;
             switch (keycode) {
                 case KC_SLRU:
                     keycode_to_send = KC_UP;
@@ -781,6 +814,7 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
             return false;
 
         case KC_SLLU ... KC_SLLR:
+            select_last_keycode = KC_NO;
             switch (keycode) {
                 case KC_SLLU:
                     keycode_to_send = KC_UP;
@@ -918,7 +952,7 @@ static void deactivate_all_oneshots(void) {
 static void mkey_activate_layer(int mkey_idx) {
     layer_on(MKEY_LAYERS[mkey_idx]);
     if (mkey_idx == 0) {
-        select_last_modifier = SELECT_ALT;
+        select_last_keycode = KC_NO;
     }
 }
 
