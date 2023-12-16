@@ -1161,10 +1161,12 @@ static bool keycode_is_basic(uint16_t keycode) {
 }
 
 static bool oneshot_mega_mini(uint16_t keycode, bool pressed) {
-    if (!keycode_is_basic(keycode)) {
+    if (!pressed) {
         return true;
-    } else if (!pressed) {
+    } else if (keycode == KC_LSFT || keycode == KC_RSFT) {
         return true;
+    } else if (!keycode_is_basic(keycode)) {
+        return false;
     } else {
         tap_code16(LCA(keycode));
         deactivate_all_oneshots();
@@ -1174,7 +1176,9 @@ static bool oneshot_mega_mini(uint16_t keycode, bool pressed) {
 
 static bool oneshot_mega(uint16_t keycode, long long time, bool pressed) {
     // It's called "oneshot" but I turned it into more of a toggle by removing deactivate_oneshot()
-    if (!keycode_is_basic(keycode)) {
+    if (keycode == KC_LSFT || keycode == KC_RSFT) {
+        return true;
+    } else if (!keycode_is_basic(keycode)) {
         return false;
     } else {
         switch (keycode) {
@@ -1204,17 +1208,21 @@ static bool oneshot_mega(uint16_t keycode, long long time, bool pressed) {
                 tap_code(KC_PSCR);
                 deactivate_all_oneshots();
                 return false;
-            default:
+            case KC_SPC:
                 return true;
+            default:
+                return false;
         }
     }
 }
 
 static bool oneshot_mini(uint16_t keycode, bool pressed) {
-    if (!keycode_is_basic(keycode)) {
+    if (!pressed) {
         return true;
-    } else if (!pressed) {
+    } else if (keycode == KC_LSFT || keycode == KC_RSFT) {
         return true;
+    } else if (!keycode_is_basic(keycode)) {
+        return false;
     } else {
         tap_code16(A(keycode));
         deactivate_all_oneshots();
