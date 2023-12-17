@@ -1239,18 +1239,26 @@ static bool oneshot_mega(uint16_t keycode, long long time, bool pressed) {
                 return process_redo(pressed);
             case MEGA_DEL_KEYCODE:
                 oneshot_try_set_timer(time);
-                tap_code(KC_DEL);
+                if (pressed) {
+                    tap_code(KC_DEL);
+                }
                 return false;
             case MEGA_ESC_KEYCODE:
                 oneshot_try_set_timer(time);
-                tap_code(KC_ESC);
+                if (pressed) {
+                    tap_code(KC_ESC);
+                }
                 return false;
             case MEGA_GUI_KEYCODE:
-                tap_code(KC_LGUI);
+                if (pressed) {
+                    tap_code(KC_LGUI);
+                }
                 deactivate_all_oneshots();
                 return false;
             case MEGA_PSCR_KEYCODE:
-                tap_code(KC_PSCR);
+                if (pressed) {
+                    tap_code(KC_PSCR);
+                }
                 deactivate_all_oneshots();
                 return false;
             case KC_SPC:
