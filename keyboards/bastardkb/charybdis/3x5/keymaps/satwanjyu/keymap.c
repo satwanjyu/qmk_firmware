@@ -138,10 +138,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                        KC_LCTL,   KC_SPC,   KC_ESC,     KC_RGUI,   KC_RALT
   ),
   [MOUSE] = LAYOUT(
-     KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
-   KC_LGUI,  KC_LALT,  KC_LCTL,  KC_LSFT,    KC_NO,       KC_NO,  KC_RSFT,  KC_RCTL,  KC_RALT,  KC_RGUI,
-     KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
-                     DRAG_SCRL,  KC_BTN1,  KC_BTN2,       KC_NO,    KC_NO
+   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,   KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,
+   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,   KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,
+   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,   KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,
+                     DRAG_SCRL,  KC_BTN1,  KC_BTN2,     KC_TRNS,   KC_TRNS
   ),
 };
 // clang-format on
