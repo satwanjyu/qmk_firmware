@@ -30,7 +30,9 @@ enum charybdis_keymap_layers {
 
 enum tap_dance_declations {
   DOUBLE_TAP_BOOT,
-  DOUBLE_TAP_GAME
+  DOUBLE_TAP_GAME,
+  DOUBLE_TAP_SLEEP,
+  DOUBLE_TAP_POWER
 };
 
 void double_tap_boot(tap_dance_state_t *state, void *user_data) {
@@ -47,8 +49,10 @@ void double_tap_game(tap_dance_state_t *state, void *user_data) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-  [DOUBLE_TAP_BOOT] = ACTION_TAP_DANCE_FN(double_tap_boot),
-  [DOUBLE_TAP_GAME] = ACTION_TAP_DANCE_FN(double_tap_game),
+  [DOUBLE_TAP_BOOT]  = ACTION_TAP_DANCE_FN(double_tap_boot),
+  [DOUBLE_TAP_GAME]  = ACTION_TAP_DANCE_FN(double_tap_game),
+  [DOUBLE_TAP_SLEEP] = ACTION_TAP_DANCE_DOUBLE(KC_NO, KC_SYSTEM_SLEEP),
+  [DOUBLE_TAP_POWER] = ACTION_TAP_DANCE_DOUBLE(KC_NO, KC_SYSTEM_POWER)
 };
 
 enum custom_keycodes {
@@ -87,6 +91,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #define TD_BOOT TD(DOUBLE_TAP_BOOT)
 #define TD_GAME TD(DOUBLE_TAP_GAME)
+#define TD_SLEP TD(DOUBLE_TAP_SLEEP)
+#define TD_PWR  TD(DOUBLE_TAP_POWER)
 
 #define DF_BASE DF(BASE)
 
@@ -119,13 +125,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   // Right-hand
   [SYM] = LAYOUT(
-   KC_LCBR,  KC_AMPR,  KC_ASTR,  KC_LPRN,  KC_RCBR,       KC_NO,    KC_NO,    KC_NO,  TD_GAME,  TD_BOOT,
+   KC_LCBR,  KC_AMPR,  KC_ASTR,  KC_LPRN,  KC_RCBR,       KC_NO,   TD_PWR,  TD_SLEP,  TD_GAME,  TD_BOOT,
    KC_COLN,   KC_DLR,  KC_PERC,  KC_CIRC,  KC_PLUS,       KC_NO,  KC_RSFT,  KC_RCTL,  KC_RALT,  KC_RGUI,
    KC_TILD,  KC_EXLM,    KC_AT,  KC_HASH,  KC_PIPE,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
                        KC_LPRN,  KC_RPRN,  KC_UNDS,       KC_NO,    KC_NO
   ),
   [NUM] = LAYOUT(
-   KC_LBRC,     KC_7,     KC_8,     KC_9,  KC_RBRC,       KC_NO,    KC_NO,    KC_NO,  TD_GAME,  TD_BOOT,
+   KC_LBRC,     KC_7,     KC_8,     KC_9,  KC_RBRC,       KC_NO,   TD_PWR,  TD_SLEP,  TD_GAME,  TD_BOOT,
    KC_SCLN,     KC_4,     KC_5,     KC_6,   KC_EQL,       KC_NO,  KC_RSFT,  KC_RCTL,  KC_RALT,  KC_RGUI,
     KC_GRV,     KC_1,     KC_2,     KC_3,  KC_BSLS,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
                         KC_DOT,     KC_0,  KC_MINS,       KC_NO,    KC_NO
