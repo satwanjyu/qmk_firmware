@@ -171,9 +171,10 @@ uint16_t keycode_to_send;
 #define N_MKEYS 2
 #define MKEY_MULTITAPPING_TERM 300LL
 
-const uint16_t MKEY_TOGGLE_KEYCODES[] = {KC_NO, KC_F24};
+const uint16_t MKEY_TOGGLE_ON_KEYCODES[] = {KC_NO, KC_F23};
+const uint16_t MKEY_TOGGLE_OFF_KEYCODES[] = {KC_NO, KC_F24};
 const uint16_t MKEY_MODIFIER_KEYCODES[] = {KC_LALT, KC_LCTL};
-const uint16_t MKEY_MULTITAP_KEYCODES[] = {C(A(KC_DEL)), KC_NO};  // Reminder to add C(S(KC_ESC)) for task manager later
+const uint16_t MKEY_MULTITAP_KEYCODES[] = {C(S(KC_ESC)), KC_NO};
 const uint8_t MKEY_LAYERS[] = {_MINI, _MEGA};
 const int MKEY_TAPPING_TERM[] = {600, 200};
 const bool MKEY_EAGER[] = {false, true};
@@ -881,7 +882,7 @@ static bool process_slxx(bool pressed, uint16_t keycode) {
  */
 
 static void activate_oneshot(int mkey_idx) {
-    tap_code16(MKEY_TOGGLE_KEYCODES[mkey_idx]);
+    tap_code16(MKEY_TOGGLE_ON_KEYCODES[mkey_idx]);
     mkey_oneshot_active[mkey_idx] = true;
     if (mkey_idx == 1) {
         redo_next = false;  // Reset dual undo/redo
@@ -935,7 +936,7 @@ static void deactivate_all_oneshots(void) {
 #endif
     for (int i = 0; i < N_MKEYS; i++) {
         if (mkey_oneshot_active[i]) {
-            tap_code16(MKEY_TOGGLE_KEYCODES[i]);
+            tap_code16(MKEY_TOGGLE_OFF_KEYCODES[i]);
             mkey_oneshot_active[i] = false;
         }
     }
@@ -1293,6 +1294,14 @@ static bool process_other(bool pressed, long long time, uint16_t keycode) {
     } else {
         return true;
     }
+}
+
+// ============================================================================
+// STARTUP CODE
+// ============================================================================
+
+void keyboard_post_init_user(void) {
+    rgblight_sethsv_noeeprom(0, 0, 0);
 }
 
 // ============================================================================

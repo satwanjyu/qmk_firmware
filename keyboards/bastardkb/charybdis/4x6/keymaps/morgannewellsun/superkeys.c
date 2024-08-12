@@ -1,7 +1,8 @@
 #include "superkeys.h"
 
-void superkey_handle_event(keyboard_state_t* keyboard_state, uint16_t keycode, bool pressed) {
+bool superkey_handle_event(keyboard_state_t* keyboard_state, uint16_t keycode, bool pressed) {
     uint32_t time = timer_read32();
+    bool continue_processing_keycode = true;
     for (size_t i = 0; i < n_superkeys; i++) {
         superkey_state_t* superkey_state = &(superkeys[i].state);
         superkey_config_t* superkey_config = &(superkeys[i].config);
@@ -49,17 +50,27 @@ void superkey_handle_event(keyboard_state_t* keyboard_state, uint16_t keycode, b
 
             }
 
+            // Superkeys can't be processed normally
+            continue_processing_keycode = false;
+
         // Handle a potential interrupt
         } else if (superkey_state->interrupt_is_on && pressed) {
             superkey_state->interrupting_keycode = keycode;
             if (superkey_config->interrupt != NULL) {
                 if (superkey_config->interrupt(keyboard_state, superkey_state)) {
-                    superkey_state->was_interrupted = superkey_state->was_timed_out == 0 ? 1 : 2;
+
+                    // Annotate interrupt information
+                    superkey_state->was_interrupted = (superkey_state->was_timed_out == 0) ? 1 : 2;
                     superkey_state->interrupt_is_on = false;
+
+                    // Keycodes that trigger interrupts shouldn't be processed normally
+                    continue_processing_keycode = false;
+                    
                 }
             }
         }
     }
+    return continue_processing_keycode;
 }
 
 void superkey_check_timers(keyboard_state_t* keyboard_state) {

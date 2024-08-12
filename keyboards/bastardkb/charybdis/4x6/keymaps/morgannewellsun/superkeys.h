@@ -49,20 +49,20 @@ In matrix_scan_user, superkey_check_timers must be called:
 #pragma once
 
 #include QMK_KEYBOARD_H
-#include "state_machine.h"
+#include "keyboard_state.h"
 
 #define SUPERKEY_RANGE SAFE_RANGE
 #define SK_INDEX(KC) (KC - SUPERKEY_RANGE)
 #define SK_DEFINE(_keycode, _tap_term, _multitap_term, _down, _up, _interrupt, _timeout) \
-    { .config = {.keycode = _keycode, .tap_term = _tap_term, .multitap_term = _multitap_term, .down = _down, .up = _up, .interrupt = _interrupt, .timeout = _timeout} }
+    [SK_INDEX(_keycode)] = { .config = {.keycode = _keycode, .tap_term = _tap_term, .multitap_term = _multitap_term, .down = _down, .up = _up, .interrupt = _interrupt, .timeout = _timeout} }
 
 typedef struct {   
     uint32_t multitap_start_time;
     uint32_t tap_start_time;
     uint16_t interrupting_keycode;
-    uint8_t was_interrupted;
-    uint8_t was_timed_out;
-    uint8_t was_multitapped;
+    uint8_t was_interrupted;  // 0 = not interrupted; 1 = interrupted prior to timeout; 2 = interrupted after timeout
+    uint8_t was_timed_out;  // 0 = not timed out; 1 = timed out prior to interrupt; 2 = timed out after interrupt
+    uint8_t was_multitapped;  // 0 = not multitap; 1 = double tap; 2 = triple tap; 3 = quadruple tap ...
     bool interrupt_is_on;
     bool timer_is_on;
     bool prev_was_tap;
@@ -86,6 +86,6 @@ typedef struct {
 extern superkey_t superkeys[];
 extern const size_t n_superkeys;
 
-void superkey_handle_event(keyboard_state_t* keyboard_state, uint16_t keycode, bool pressed);
+bool superkey_handle_event(keyboard_state_t* keyboard_state, uint16_t keycode, bool pressed);
 void superkey_check_timers(keyboard_state_t* keyboard_state);
 

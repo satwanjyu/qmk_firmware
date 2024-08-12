@@ -9,6 +9,9 @@
 // NKRO
 #define FORCE_NKRO
 
+// DEBOUNCE
+#define DEBOUNCE 15
+
 // MIDI
 #define MIDI_BASIC
 

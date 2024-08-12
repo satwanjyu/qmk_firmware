@@ -1,0 +1,2 @@
+// #define KEY_OVERRIDE_ENABLE
+// #define MOUSE_EXTENDED_REPORT
