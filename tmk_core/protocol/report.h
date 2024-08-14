@@ -33,7 +33,8 @@ enum hid_report_ids {
     REPORT_ID_PROGRAMMABLE_BUTTON,
     REPORT_ID_NKRO,
     REPORT_ID_JOYSTICK,
-    REPORT_ID_DIGITIZER
+    REPORT_ID_DIGITIZER,
+    REPORT_ID_RESMULT
 };
 
 /* Mouse buttons */
@@ -205,6 +206,13 @@ typedef struct {
     int8_t            v;
     int8_t            h;
 } PACKED report_mouse_t;
+
+typedef struct {
+    uint8_t report_id;
+    uint8_t scroll_resolution : 2;
+    uint8_t pan_resolution : 2;
+    uint8_t padding : 4;
+} PACKED report_resmult_t;
 
 typedef struct {
 #ifdef DIGITIZER_SHARED_EP

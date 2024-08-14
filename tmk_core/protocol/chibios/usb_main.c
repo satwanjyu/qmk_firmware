@@ -74,6 +74,12 @@ static void keyboard_idle_timer_cb(struct ch_virtual_timer *, void *arg);
 
 report_keyboard_t keyboard_report_sent = {0};
 report_mouse_t    mouse_report_sent    = {0};
+static report_resmult_t resmult_report = {
+    .report_id = REPORT_ID_RESMULT,
+    .scroll_resolution = 1,
+    .pan_resolution = 1,
+    .padding = 0
+};
 
 union {
     uint8_t           report_id;
@@ -604,6 +610,10 @@ static bool usb_requests_hook_cb(USBDriver *usbp) {
 #endif
 #if defined(MOUSE_ENABLE) && !defined(MOUSE_SHARED_EP)
                             case MOUSE_INTERFACE:
+                                if (setup->wValue.lbyte == REPORT_ID_RESMULT) {
+                                    usbSetupTransfer(usbp, (uint8_t *)&resmult_report, sizeof(resmult_report), NULL);
+                                    return TRUE;
+                                }
                                 usbSetupTransfer(usbp, (uint8_t *)&mouse_report_sent, sizeof(mouse_report_sent), NULL);
                                 return TRUE;
                                 break;
@@ -617,6 +627,10 @@ static bool usb_requests_hook_cb(USBDriver *usbp) {
                                 }
 #    endif
 #    ifdef MOUSE_SHARED_EP
+                                if (setup->wValue.lbyte == REPORT_ID_RESMULT) {
+                                    usbSetupTransfer(usbp, (uint8_t *)&resmult_report, sizeof(resmult_report), NULL);
+                                    return TRUE;
+                                }
                                 if (setup->wValue.lbyte == REPORT_ID_MOUSE) {
                                     usbSetupTransfer(usbp, (uint8_t *)&mouse_report_sent, sizeof(mouse_report_sent), NULL);
                                     return true;
@@ -648,11 +662,29 @@ static bool usb_requests_hook_cb(USBDriver *usbp) {
                     case HID_REQ_SetReport:
                         switch (setup->wIndex) {
                             case KEYBOARD_INTERFACE:
-#if defined(SHARED_EP_ENABLE) && !defined(KEYBOARD_SHARED_EP)
-                            case SHARED_INTERFACE:
-#endif
                                 usbSetupTransfer(usbp, set_report_buf, sizeof(set_report_buf), set_led_transfer_cb);
                                 return true;
+#if defined(SHARED_EP_ENABLE)
+                            case SHARED_INTERFACE:
+#    if defined(MOUSE_SHARED_EP)
+                                if (setup->wValue.lbyte == REPORT_ID_RESMULT) {
+                                    usbSetupTransfer(usbp, (uint8_t *)&resmult_report, sizeof(resmult_report), NULL);
+                                    return true;
+                                }
+#    endif /* MOUSE_SHARED_EP */
+#    if !defined(KEYBOARD_SHARED_EP)
+                                usbSetupTransfer(usbp, set_report_buf, sizeof(set_report_buf), set_led_transfer_cb);
+                                return true;
+#    endif /* !KEYBOARD_SHARED_EP */
+#endif
+#if defined(MOUSE_ENABLE) && !defined(MOUSE_SHARED_EP)
+                            case MOUSE_INTERFACE:
+                                if (setup->wValue.lbyte == REPORT_ID_RESMULT) {
+                                    usbSetupTransfer(usbp, (uint8_t *)&resmult_report, sizeof(resmult_report), NULL);
+                                    return true;
+                                }
+                                break;
+#endif
                         }
                         break;
 

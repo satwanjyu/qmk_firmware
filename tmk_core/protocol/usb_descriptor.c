@@ -117,9 +117,13 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM SharedReport[] = {
     HID_RI_USAGE_PAGE(8, 0x01),            // Generic Desktop
     HID_RI_USAGE(8, 0x02),                 // Mouse
     HID_RI_COLLECTION(8, 0x01),            // Application
-#    ifdef MOUSE_SHARED_EP
+
+// #    ifdef MOUSE_SHARED_EP
+//         HID_RI_REPORT_ID(8, REPORT_ID_MOUSE),
+// #    endif
+
         HID_RI_REPORT_ID(8, REPORT_ID_MOUSE),
-#    endif
+
         HID_RI_USAGE(8, 0x01),             // Pointer
         HID_RI_COLLECTION(8, 0x00),        // Physical
             // Buttons (8 bits)
@@ -155,21 +159,50 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM SharedReport[] = {
 #    endif
             HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
 
-            // Vertical wheel (1 byte)
-            HID_RI_USAGE(8, 0x38),         // Wheel
-            HID_RI_LOGICAL_MINIMUM(8, -127),
-            HID_RI_LOGICAL_MAXIMUM(8, 127),
-            HID_RI_REPORT_COUNT(8, 0x01),
-            HID_RI_REPORT_SIZE(8, 0x08),
-            HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
-            // Horizontal wheel (1 byte)
-            HID_RI_USAGE_PAGE(8, 0x0C),    // Consumer
-            HID_RI_USAGE(16, 0x0238),      // AC Pan
-            HID_RI_LOGICAL_MINIMUM(8, -127),
-            HID_RI_LOGICAL_MAXIMUM(8, 127),
-            HID_RI_REPORT_COUNT(8, 0x01),
-            HID_RI_REPORT_SIZE(8, 0x08),
-            HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
+            HID_RI_COLLECTION(8, 0x02), // Collection (Logical)
+                HID_RI_REPORT_ID(8, REPORT_ID_RESMULT),          // Report ID
+                HID_RI_USAGE(8, 0x48),              // Usage (Resolution Multiplier)
+                HID_RI_REPORT_COUNT(8, 0x01),       // Report Count (1)
+                HID_RI_REPORT_SIZE(8, 0x02),        // Report Size (2)
+                HID_RI_LOGICAL_MINIMUM(8, 0x00),    // Logical Minimum (0)
+                HID_RI_LOGICAL_MAXIMUM(8, 0x01),    // Logical Maximum (1)
+                HID_RI_PHYSICAL_MINIMUM(8, 0x01),   // Physical Minimum (1)
+                HID_RI_PHYSICAL_MAXIMUM(8, 0x78),   // Physical Maximum (120)
+                HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE), // Feature (Data,Var,Abs)
+                HID_RI_REPORT_ID(8, REPORT_ID_MOUSE),          // Report ID
+                HID_RI_USAGE(8, 0x38),              // Usage (Wheel)
+                HID_RI_PHYSICAL_MINIMUM(8, 0x00),   // Physical Minimum (0)
+                HID_RI_PHYSICAL_MAXIMUM(8, 0x00),   // Physical Maximum (0)
+                HID_RI_REPORT_COUNT(8, 0x01),       // Report Count (1)
+                HID_RI_REPORT_SIZE(8, 0x08),        // Report Size (8)
+                HID_RI_LOGICAL_MINIMUM(8, 0x81),    // Logical Minimum (-127)
+                HID_RI_LOGICAL_MAXIMUM(8, 0x7F),    // Logical Maximum (127)
+                HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE), // Input (Data,Var,Rel)
+            HID_RI_END_COLLECTION(0),          // End Collection
+            HID_RI_COLLECTION(8, 0x02), // Collection (Logical)
+                HID_RI_REPORT_ID(8, REPORT_ID_RESMULT),          // Report ID
+                HID_RI_USAGE(8, 0x48),              // Usage (Resolution Multiplier)
+                HID_RI_REPORT_COUNT(8, 0x01),       // Report Count (1)
+                HID_RI_REPORT_SIZE(8, 0x02),        // Report Size (2)
+                HID_RI_LOGICAL_MINIMUM(8, 0x00),    // Logical Minimum (0)
+                HID_RI_LOGICAL_MAXIMUM(8, 0x01),    // Logical Maximum (1)
+                HID_RI_PHYSICAL_MINIMUM(8, 0x01),   // Physical Minimum (1)
+                HID_RI_PHYSICAL_MAXIMUM(8, 0x78),   // Physical Maximum (120)
+                HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE), // Feature (Data,Var,Abs)
+                HID_RI_PHYSICAL_MINIMUM(8, 0x00),   // Physical Minimum (0)
+                HID_RI_PHYSICAL_MAXIMUM(8, 0x00),   // Physical Maximum (0)
+                HID_RI_REPORT_SIZE(8, 0x04),        // Report Size (4)
+                HID_RI_FEATURE(8, HID_IOF_CONSTANT), // Feature (Const,Array,Abs)
+                HID_RI_REPORT_ID(8, REPORT_ID_MOUSE),          // Report ID
+                HID_RI_USAGE_PAGE(8, 0x0C),         // Usage Page (Consumer)
+                HID_RI_USAGE(16, 0x0238),           // Usage (AC Pan)
+                HID_RI_REPORT_COUNT(8, 0x01),       // Report Count (1)
+                HID_RI_REPORT_SIZE(8, 0x08),        // Report Size (8)
+                HID_RI_LOGICAL_MINIMUM(8, 0x81),    // Logical Minimum (-127)
+                HID_RI_LOGICAL_MAXIMUM(8, 0x7F),    // Logical Maximum (127)
+                HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE), // Input (Data,Var,Rel)
+            HID_RI_END_COLLECTION(0),          // End Collection
+
         HID_RI_END_COLLECTION(0),
     HID_RI_END_COLLECTION(0),
 #    ifndef MOUSE_SHARED_EP
