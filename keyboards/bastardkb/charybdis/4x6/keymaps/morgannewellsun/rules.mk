@@ -1,4 +1,4 @@
 SRC += features.c
 SRC += superkeys.c
-SRC += countdowns.c
+SRC += timeouts.c
 SRC += rgb_engine.c

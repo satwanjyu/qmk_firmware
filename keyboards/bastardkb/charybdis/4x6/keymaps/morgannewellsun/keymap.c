@@ -2,6 +2,22 @@
 #include "features.h"
 
 
+
+
+// TODO MOVE THIS TO features.c
+enum rgb_animation_names {
+    ANIM_OFF,
+    ANIM_TEST
+};
+
+rgb_animation_t rgb_animations[] = {
+    [ANIM_OFF] = {100, {1000}, {{0, 0, 0}}, 0, 1},
+    [ANIM_TEST] = {100, {1000, 1000, 1000}, {{85, 255, RGB_MAX_BRIGHTNESS}, {170, 255, RGB_MAX_BRIGHTNESS}, {0, 255, RGB_MAX_BRIGHTNESS}}, 0, 3}
+};
+
+
+
+
 keyboard_state_t keyboard_state = {0};
 
 // void test_down_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
@@ -101,17 +117,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 void keyboard_post_init_user(void) {
     rgb_setup(&(keyboard_state.rgb));
+    rgb_start(&(keyboard_state.rgb), ANIM_TEST);
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (keycode == QK_BOOT) { return true; }
     return superkey_handle_event(&keyboard_state, keycode, record->event.pressed);
-    // rgb_start(&(keyboard_state.rgb), ANIM_OFF);
-    // rgb_start(&(keyboard_state.rgb), ANIM_TEST);
 }
 
 void matrix_scan_user(void) {
     superkey_check_timers(&keyboard_state);
-    countdown_check_timers(&keyboard_state);
+    timeout_check_timers(&keyboard_state);
     rgb_update(&(keyboard_state.rgb));
 }

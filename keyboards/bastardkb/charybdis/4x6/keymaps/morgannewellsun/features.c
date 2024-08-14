@@ -17,15 +17,7 @@
 // RGB ANIMATIONS
 // ============================================================================
 
-enum rgb_animation_names {
-    ANIM_OFF,
-    ANIM_TEST
-};
 
-rgb_animation_t rgb_animations[] = {
-    [ANIM_OFF] = {100, {1000}, {{0, 0, 0}}, 0, 1},
-    [ANIM_TEST] = {100, {1000, 1000, 1000}, {{85, 255, RGB_MAX_BRIGHTNESS}, {170, 255, RGB_MAX_BRIGHTNESS}, {0, 255, RGB_MAX_BRIGHTNESS}}, 0, 3}
-};
 
 // ============================================================================
 // LAYER SWITCHING
@@ -125,27 +117,37 @@ void sk_os_up_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_st
 // CTRL ONESHOT AND ASSOCIATED FUNCTIONS
 // ============================================================================
 
-// void sk_ctrl_down_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
-    
-// }
+// GOALS:
+// Hold CTRL for a bit to start sending it
+// Press another key while holding CTRL to send CTRL(key)
+// Tap CTRL to activate CTRL oneshot (utilities layer is active while CTRL is the only oneshot active, utilities layer doesn't get CTRL oneshot applied)
+// Tap CTRL twice to activate CTRL oneshot plus utilities layer
 
-// void sk_ctrl_up_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
-//     // If interrupted or timed out, release CTRL.
-//     // Else, if tapped, 
-// }
+void sk_ctrl_down_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
+    // If utilities layer is on, turn it off and lock the key to prevent other functions from doing anything. Otherwise, do nothing. 
+}
+
+void sk_ctrl_up_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
+    // If interrupted or timed out, release CTRL. Otherwise, activate the CTRL oneshot. If this is the only active oneshot, turn on the utilities layer as well.
+}
  
-// void sk_ctrl_interrupt_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
-//     // If already timed out do nothing. Otherwise, start holding CTRL. In either case, begin holding the interrupting key. 
+void sk_ctrl_interrupt_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
+    // If already timed out do nothing. Otherwise, start holding CTRL. In either case, begin holding the interrupting key. 
 
-// }
+}
 
-// void sk_ctrl_timeout_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
-//     // If already interrupted, do nothing. Otherwise, start holding CTRL and flash the indicator lights.
-// }
+void sk_ctrl_timeout_fn(keyboard_state_t* keyboard_state, superkey_state_t* superkey_state) {
+    // If already interrupted, do nothing. Otherwise, start holding CTRL and flash the indicator lights.
+}
+
+void utilities_off(keyboard_state_t* keyboard_state) {
+    // TODO RGB: turn utilities layer off
+    layer_off(LAYER_UTILITIES);
+}
 
 
 // ============================================================================
-// SUPERKEY LIST
+// SUPERKEYS
 // ============================================================================
 
 #define DEFAULT_TAP_TERM 175
@@ -159,10 +161,17 @@ superkey_t superkeys[] = {
 const size_t n_superkeys = sizeof(superkeys) / sizeof(superkeys[0]);
 
 // ============================================================================
-// COUNTDOWN FUNCTIONS
+// TIMEOUTS
 // ============================================================================
 
-countdown_t countdowns[] = {
-    // COUNTDOWN_DEFINE(UTILITIES_AUTO_OFF,    DEFAULT_MULTITAP_TERM, );
+timeout_t timeouts[] = {
+    TIMEOUT_DEFINE(UTILITIES_OFF,   DEFAULT_MULTITAP_TERM,  &utilities_off),
 };
-const size_t n_countdowns = sizeof(countdowns) / sizeof(countdowns[0]);
+const size_t n_timeouts = sizeof(timeouts) / sizeof(timeouts[0]);
+
+// ============================================================================
+// INTERRUPTS
+// ============================================================================
+
+// TODO
+// THIS IS NECESSARY FOR ONESHOTS
